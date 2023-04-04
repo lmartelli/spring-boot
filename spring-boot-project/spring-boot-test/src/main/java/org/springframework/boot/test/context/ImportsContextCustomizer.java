@@ -216,16 +216,11 @@ class ImportsContextCustomizer implements ContextCustomizer {
 
 		private static final Class<?>[] NO_IMPORTS = {};
 
-		private static final Set<AnnotationFilter> ANNOTATION_FILTERS;
-
-		static {
-			Set<AnnotationFilter> filters = new HashSet<>();
-			filters.add(new JavaLangAnnotationFilter());
-			filters.add(new KotlinAnnotationFilter());
-			filters.add(new SpockAnnotationFilter());
-			filters.add(new JUnitAnnotationFilter());
-			ANNOTATION_FILTERS = Collections.unmodifiableSet(filters);
-		}
+		private static final Set<AnnotationFilter> ANNOTATION_FILTERS =
+				Set.of(new JavaLangAnnotationFilter(),
+						new KotlinAnnotationFilter(),
+						new SpockAnnotationFilter(),
+						new JUnitAnnotationFilter());
 
 		private final Set<Object> key;
 
