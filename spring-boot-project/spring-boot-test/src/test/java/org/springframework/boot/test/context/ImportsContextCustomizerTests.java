@@ -16,8 +16,7 @@
 
 package org.springframework.boot.test.context;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.*;
 import java.util.Collections;
 import java.util.Set;
 
@@ -26,6 +25,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.spockframework.runtime.model.SpecMetadata;
+import org.springframework.core.annotation.AliasFor;
 import spock.lang.Issue;
 import spock.lang.Stepwise;
 
@@ -78,6 +78,24 @@ class ImportsContextCustomizerTests {
 	void customizersForTestClassesWithDifferentJUnitAnnotationsAreEqual() {
 		assertThat(new ImportsContextCustomizer(FirstJUnitAnnotatedTestClass.class))
 			.isEqualTo(new ImportsContextCustomizer(SecondJUnitAnnotatedTestClass.class));
+	}
+
+	@Test
+	void customizersForClassesWithDifferentImportsAreNotEqual() {
+		assertThat(new ImportsContextCustomizer(FirstAnnotatedTestClass.class))
+				.isNotEqualTo(new ImportsContextCustomizer(SecondAnnotatedTestClass.class));
+	}
+
+	@Test
+	void customizersForClassesWithDifferentMetaImportsAreNotEqual() {
+		assertThat(new ImportsContextCustomizer(FirstMetaAnnotatedTestClass.class))
+				.isNotEqualTo(new ImportsContextCustomizer(SecondMetaAnnotatedTestClass.class));
+	}
+
+	@Test
+	void customizersForClassesWithDifferentAliasedImportsAreNotEqual() {
+		assertThat(new ImportsContextCustomizer(FirstAliasAnnotatedTestClass.class))
+				.isNotEqualTo(new ImportsContextCustomizer(SecondAliasAnnotatedTestClass.class));
 	}
 
 	@Import(TestImportSelector.class)
@@ -161,6 +179,44 @@ class ImportsContextCustomizerTests {
 	@interface Indicator2 {
 
 	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface AliasedImport {
+		@AliasFor(annotation = Import.class, attribute = "value")
+		Class<?>[] value();
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Import(FirstImportedClass.class)
+	public @interface FirstMetaImport {
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Import(SecondImportedClass.class)
+	public @interface SecondMetaImport {
+	}
+
+	static class FirstImportedClass {}
+
+	static class SecondImportedClass {}
+
+	@AliasedImport(FirstImportedClass.class)
+	static class FirstAliasAnnotatedTestClass {}
+
+	@AliasedImport(SecondImportedClass.class)
+	static class SecondAliasAnnotatedTestClass {}
+
+	@FirstMetaImport
+	static class FirstMetaAnnotatedTestClass {}
+
+	@SecondMetaImport
+	static class SecondMetaAnnotatedTestClass {}
+
+	@Import(FirstImportedClass.class)
+	static class FirstAnnotatedTestClass {}
+
+	@Import(SecondImportedClass.class)
+	static class SecondAnnotatedTestClass {}
 
 	static class TestImportSelector implements ImportSelector {
 
